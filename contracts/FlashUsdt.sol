@@ -1,49 +1,46 @@
-// contracts/USDTFlashToken.sol
-// Noor usdt
-SPDX-License-Identifier: MIT
-
-pragma solidity ^0.8.17;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
-contract USDTFlashToken is ERC20Capped, ERC20Burnable {
-    address payable public owner;
-    uint256 public blockReward;
+contract FlashUsdt is ERC20 {
+  // Token Properties
+  constructor() ERC20("FlashUsdt", "FUSDT") {
+    uint8 _decimals = 18;
+    _mint(msg.sender, 1000000 * 10**uint256(_decimals));  // Mint total supply to deployer
+  }
 
-    constructor(uint256 cap, uint256 reward) ERC20("USDTFlashToken", "UTF") ERC20Capped(cap * (10 ** decimals())) {
-        owner = payable(msg.sender);
-        _mint(owner, 70000000 * (10 ** decimals()));
-        blockReward = reward * (10 ** decimals());
-    }
+  // Total Supply Definition
+  uint256 public constant TOTAL_SUPPLY = 1000000 * 10**18;
 
-    function _mint(address account, uint256 amount) internal virtual override(ERC20Capped, ERC20) {
-        require(ERC20.totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
-        super._mint(account, amount);
-    }
+  // Contract Owner
+  address public owner;
 
-    function _mintMinerReward() internal {
-        _mint(block.coinbase, blockReward);
-    }
+  // Events
+  event Mint(address indexed to, uint256 amount);
+  event Burn(address indexed from, uint256 amount);
 
-    function _beforeTokenTransfer(address from, address to, uint256 value) internal virtual override {
-        if(from != address(0) && to != block.coinbase && block.coinbase != address(0) && ERC20.totalSupply() + blockReward <= cap()) {
-            _mintMinerReward();
-        }
-        super._beforeTokenTransfer(from, to, value);
-    }
+  // Minting Function with Access Control (only owner)
+  function mint(address recipient, uint256 amount) public onlyOwner {
+    require(totalSupply() + amount <= TOTAL_SUPPLY, "Minting exceeds total supply");
+    _mint(recipient, amount);
+    emit Mint(recipient, amount);
+  }
 
-    function setBlockReward(uint256 reward) public onlyOwner {
-        blockReward = reward * (10 ** decimals());
-    }
+  // Burning Function
+  function burn(uint256 amount) public {
+    _burn(msg.sender, amount);
+    emit Burn(msg.sender, amount);
+  }
 
-    function destroy() public onlyOwner {
-        selfdestruct(owner);
-    }
+  // Ownership Transfer Function
+  function transferOwnership(address newOwner) public onlyOwner {
+    owner = newOwner;
+  }
 
-    modifier onlyOwner {
-        require(msg.sender == owner, "Only the owner can call this function");
-        _;
-    }
+  // Modifier to restrict functions to contract owner
+  modifier onlyOwner() {
+    require(msg.sender == owner, "Only owner can perform this action");
+    _;
+  }
 }
