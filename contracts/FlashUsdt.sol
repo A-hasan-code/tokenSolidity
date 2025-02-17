@@ -7,7 +7,7 @@ contract FlashUsdt is ERC20 {
   // Token Properties
   constructor() ERC20("FlashUsdt", "FUSDT") {
     uint8 _decimals = 18;
-    _mint(msg.sender, 1000000 * 10**uint256(_decimals));  // Mint total supply to deployer
+    _mint(msg.sender, 1000000 * 10**uint256(_decimals));  
   }
 
   // Total Supply Definition

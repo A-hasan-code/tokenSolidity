@@ -1,12 +1,28 @@
 const hre = require("hardhat");
 
 async function main() {
-  const USDTFlashToken = await hre.ethers.getContractFactory("USDTFlashToken");
-  const usdtflash = await USDTFlashToken.deploy(100000000, 50);
+  // Start the timer
+  console.time("Deployment Time");
 
-  await usdtflash .deployed();
+  // Get the contract factory
+  console.log("Getting contract factory...");
+  const FlashUsdt = await hre.ethers.getContractFactory("FlashUsdt");
 
-  console.log("Ocean Token deployed: ", USDTFlashToken.address);
+  // Deploy the contract
+  console.log("Deploying contract...");
+  const usdtflash = await FlashUsdt.deploy();
+
+  // Wait for the contract to be deployed
+  console.log("Waiting for deployment confirmation...");
+  await usdtflash.waitForDeployment();
+console.log("come on next step")
+  // Get the address of the deployed contract
+  const contractAddress = await usdtflash.getAddress();
+
+  // Log the address of the deployed contract
+  console.log("Token deployed to:", contractAddress);
+
+
 }
 
 main().catch((error) => {
