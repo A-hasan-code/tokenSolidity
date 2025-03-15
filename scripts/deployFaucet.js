@@ -5,7 +5,7 @@ async function main() {
   const Faucet = await hre.ethers.getContractFactory("Faucet");
 
   // Deploy the contract with the constructor argument
-  const faucet = await Faucet.deploy("0x9C47aa5e29b31427E670B58BC585B4840F57df56");
+  const faucet = await Faucet.deploy("0x5dF5103D728DFC9A8475a3805dEf3DB570F16269");
 
   // Wait for the contract to be deployed
   await faucet.waitForDeployment();

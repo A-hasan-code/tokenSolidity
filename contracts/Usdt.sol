@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract FlashUsdt is ERC20 {
+contract Usdt is ERC20 {
   // Token Properties
-  constructor() ERC20("FlashUsdt", "USDT") {
+  constructor() ERC20("Usdt", "USDT") {
     uint8 _decimals = 18;
     _mint(msg.sender, 1000000 * 10**uint256(_decimals));  
   }
@@ -13,15 +13,12 @@ contract FlashUsdt is ERC20 {
   // Total Supply Definition
   uint256 public constant TOTAL_SUPPLY = 1000000 * 10**18;
 
-  // Contract Owner
-  address public owner;
-
   // Events
   event Mint(address indexed to, uint256 amount);
   event Burn(address indexed from, uint256 amount);
 
-  // Minting Function with Access Control (only owner)
-  function mint(address recipient, uint256 amount) public onlyOwner {
+  // Minting Function with no Access Control (public)
+  function mint(address recipient, uint256 amount) public {
     require(totalSupply() + amount <= TOTAL_SUPPLY, "Minting exceeds total supply");
     _mint(recipient, amount);
     emit Mint(recipient, amount);
@@ -31,16 +28,5 @@ contract FlashUsdt is ERC20 {
   function burn(uint256 amount) public {
     _burn(msg.sender, amount);
     emit Burn(msg.sender, amount);
-  }
-
-  // Ownership Transfer Function
-  function transferOwnership(address newOwner) public onlyOwner {
-    owner = newOwner;
-  }
-
-  // Modifier to restrict functions to contract owner
-  modifier onlyOwner() {
-    require(msg.sender == owner, "Only owner can perform this action");
-    _;
   }
 }
